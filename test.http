@@ -171,3 +171,32 @@ Authorization: Bearer {{auditorToken}}
 ### Fetch Logs (Agent - forbidden)
 GET {{baseUrl}}/logs/
 Authorization: Bearer {{agentToken}}
+
+
+### ----------------------------------------------------
+### Reports & Dashboard APIs
+### ----------------------------------------------------
+
+### Pending Tasks (grouped by region+team)
+GET {{baseUrl}}/reports/pending-tasks/
+Authorization: Bearer {{adminToken}}
+
+### Task Distribution (status counts per region)
+GET {{baseUrl}}/reports/task-distribution/
+Authorization: Bearer {{auditorToken}}
+
+### Recent Visits (completed in last 7 days, daily)
+GET {{baseUrl}}/reports/recent-visits/
+Authorization: Bearer {{leadToken}}
+
+### Avg Completion Time per Agent
+GET {{baseUrl}}/reports/completion-time/
+Authorization: Bearer {{adminToken}}
+
+### Dashboard (Admin - global view)
+GET {{baseUrl}}/reports/dashboard/
+Authorization: Bearer {{adminToken}}
+
+### Dashboard (Agent - self-scoped view)
+GET {{baseUrl}}/reports/dashboard/
+Authorization: Bearer {{agentToken}}
