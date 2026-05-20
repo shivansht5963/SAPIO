@@ -1,0 +1,104 @@
+### FFMS API Test File
+# Use with VS Code REST Client extension or similar
+
+@baseUrl = http://127.0.0.1:8000/api
+@adminUsername = admin_user
+@adminPassword = admin123
+@leadUsername = tl_alpha
+@leadPassword = pass123
+@agentUsername = agent_ravi
+@agentPassword = pass123
+
+### 1. Login as Admin
+# @name adminLogin
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "username": "{{adminUsername}}",
+    "password": "{{adminPassword}}"
+}
+
+###
+@adminToken = {{adminLogin.response.body.access}}
+
+### 2. Login as Team Lead
+# @name leadLogin
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "username": "{{leadUsername}}",
+    "password": "{{leadPassword}}"
+}
+
+###
+@leadToken = {{leadLogin.response.body.access}}
+
+### 3. Login as Field Agent
+# @name agentLogin
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "username": "{{agentUsername}}",
+    "password": "{{agentPassword}}"
+}
+
+###
+@agentToken = {{agentLogin.response.body.access}}
+
+### ----------------------------------------------------
+### Tasks APIs
+### ----------------------------------------------------
+
+### List all tasks (Admin sees all)
+GET {{baseUrl}}/tasks/
+Authorization: Bearer {{adminToken}}
+
+### List tasks (Lead sees team tasks)
+GET {{baseUrl}}/tasks/
+Authorization: Bearer {{leadToken}}
+
+### List tasks (Agent sees only own assigned tasks)
+GET {{baseUrl}}/tasks/
+Authorization: Bearer {{agentToken}}
+
+### Create a Task (Lead can create)
+POST {{baseUrl}}/tasks/
+Authorization: Bearer {{leadToken}}
+Content-Type: application/json
+
+{
+    "title": "New Team Task",
+    "description": "Created by Team Lead via API",
+    "priority": "medium",
+    "due_date": "2026-06-01"
+}
+
+### Create a Task (Agent gets 403 Forbidden)
+POST {{baseUrl}}/tasks/
+Authorization: Bearer {{agentToken}}
+Content-Type: application/json
+
+{
+    "title": "Agent created task",
+    "description": "Should be forbidden",
+    "priority": "low",
+    "due_date": "2026-06-01"
+}
+
+### Get Task Detail (In scope)
+# Replace {id} with a valid task ID for the user
+GET {{baseUrl}}/tasks/1/
+Authorization: Bearer {{leadToken}}
+
+### Assign/Re-assign Task
+# Replace {id} with a valid task ID and `assigned_to` with an EmployeeProfile ID
+PATCH {{baseUrl}}/tasks/1/assign/
+Authorization: Bearer {{leadToken}}
+Content-Type: application/json
+
+{
+    "assigned_to": 5
+}
