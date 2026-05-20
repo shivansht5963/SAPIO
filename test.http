@@ -48,6 +48,19 @@ Content-Type: application/json
 ###
 @agentToken = {{agentLogin.response.body.access}}
 
+### 4. Login as Auditor
+# @name auditorLogin
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "username": "auditor_meera",
+    "password": "pass123"
+}
+
+###
+@auditorToken = {{auditorLogin.response.body.access}}
+
 ### ----------------------------------------------------
 ### Tasks APIs
 ### ----------------------------------------------------
@@ -102,3 +115,59 @@ Content-Type: application/json
 {
     "assigned_to": 5
 }
+
+### ----------------------------------------------------
+### Visits APIs
+### ----------------------------------------------------
+
+### Start a Visit (Agent)
+# Replace `task_id` with a task assigned to agent_ravi
+POST {{baseUrl}}/visits/start/
+Authorization: Bearer {{agentToken}}
+Content-Type: application/json
+
+{
+    "task_id": 20
+}
+
+### Complete a Visit (Low Risk)
+# Replace {id} with the ID of the visit created above
+POST {{baseUrl}}/visits/10/complete/
+Authorization: Bearer {{agentToken}}
+Content-Type: application/json
+
+{
+    "visit_notes": "Customer was happy, routine check completed."
+}
+
+### Complete a Visit (High Risk)
+# Replace {id} with another active visit ID
+POST {{baseUrl}}/visits/10/complete/
+Authorization: Bearer {{agentToken}}
+Content-Type: application/json
+
+{
+    "visit_notes": "Customer was extremely angry and refused to sign."
+}
+
+### Get Visit Detail (Manager)
+# Replace {id} with the visit ID
+GET {{baseUrl}}/visits/10/
+Authorization: Bearer {{leadToken}}
+
+
+### ----------------------------------------------------
+### Activity Logs APIs
+### ----------------------------------------------------
+
+### Fetch Logs (Auditor - sees all)
+GET {{baseUrl}}/logs/
+Authorization: Bearer {{auditorToken}}
+
+### Fetch Logs with Filter
+GET {{baseUrl}}/logs/?action=completed&entity_type=visit
+Authorization: Bearer {{auditorToken}}
+
+### Fetch Logs (Agent - forbidden)
+GET {{baseUrl}}/logs/
+Authorization: Bearer {{agentToken}}

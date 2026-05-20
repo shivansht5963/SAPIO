@@ -12,6 +12,7 @@ from .serializers import (
     TaskCreateUpdateSerializer,
     TaskAssignSerializer
 )
+from services.activity_logger import log_activity
 
 class TaskViewSet(ScopeFilterMixin, viewsets.ModelViewSet):
     """
@@ -53,13 +54,35 @@ class TaskViewSet(ScopeFilterMixin, viewsets.ModelViewSet):
             return TaskAssignSerializer
         return TaskCreateUpdateSerializer
 
-    def perform_update(self, serializer):
-        # We also need to update the scope fields if the assigned user changes on update
+    def perform_create(self, serializer):
         task = serializer.save()
+        log_activity(
+            user=self.request.user,
+            action='created',
+            entity_type='task',
+            entity_id=task.id,
+            description=f'Task "{task.title}" created.'
+        )
+
+    def perform_update(self, serializer):
+        old_status = serializer.instance.status
+        task = serializer.save()
+        
+        # Scope update
         if 'assigned_to' in serializer.validated_data and task.assigned_to:
             task.team_scope = task.assigned_to.team
             task.region_scope = task.assigned_to.region
             task.save(update_fields=['team_scope', 'region_scope'])
+            
+        # Logging
+        if 'status' in serializer.validated_data and old_status != task.status:
+            log_activity(
+                user=self.request.user,
+                action='status_changed',
+                entity_type='task',
+                entity_id=task.id,
+                description=f'Task status changed from {old_status} to {task.status}.'
+            )
 
     @action(detail=True, methods=['patch'])
     def assign(self, request, pk=None):
@@ -70,5 +93,16 @@ class TaskViewSet(ScopeFilterMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             self.perform_update(serializer)
+            
+            assigned_profile = task.assigned_to
+            assigned_name = assigned_profile.user.username if assigned_profile else "Unassigned"
+            log_activity(
+                user=request.user,
+                action='assigned',
+                entity_type='task',
+                entity_id=task.id,
+                description=f'Task assigned to {assigned_name}.'
+            )
+            
             return Response(TaskDetailSerializer(task).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
