@@ -57,7 +57,7 @@ class VisitStartSerializer(serializers.Serializer):
             
         # Check if a Visit already exists and is active for this task
         # Optional: You might allow multiple visits per task, but for FFMS, let's assume 1 active visit at a time
-        active_visits = Visit.objects.filter(task=task, status='Started').exists()
+        active_visits = Visit.objects.filter(task=task, status='started').exists()
         if active_visits:
             raise serializers.ValidationError("An active visit already exists for this task.")
 
@@ -72,7 +72,7 @@ class VisitStartSerializer(serializers.Serializer):
         visit = Visit.objects.create(
             task=task,
             started_by=user.profile,
-            status='Started',
+            status='started',
             start_time=timezone.now()
         )
 
