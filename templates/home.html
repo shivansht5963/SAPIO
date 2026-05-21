@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFMS — Field Force Management System</title>
+    <meta name="description" content="FFMS Backend API & Frontend Application Portal">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(99, 102, 241, 0.12);
+            --border-subtle: rgba(0, 0, 0, 0.06);
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-cyan: #0891b2;
+            --accent-emerald: #059669;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Subtle background pattern ── */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(8, 145, 178, 0.03) 0%, transparent 60%);
+        }
+
+        .bg-pattern::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(99, 102, 241, 0.015) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(99, 102, 241, 0.015) 1px, transparent 1px);
+            background-size: 64px 64px;
+        }
+
+        /* ── Soft floating blobs ── */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.25;
+            animation: drift 18s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
+            top: -150px;
+            left: -150px;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #ddd6fe, #c4b5fd);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -6s;
+        }
+
+        .blob-3 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #a5f3fc, #67e8f9);
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -12s;
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(25px, -15px) scale(1.04); }
+            66% { transform: translate(-15px, 10px) scale(0.96); }
+        }
+
+        /* ── Main ── */
+        .container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* ── Status badge ── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 100px;
+            background: rgba(5, 150, 105, 0.06);
+            border: 1px solid rgba(5, 150, 105, 0.15);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-emerald);
+            margin-bottom: 32px;
+            letter-spacing: 0.3px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.35); }
+            50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
+        }
+
+        /* ── Heading ── */
+        .hero-title {
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.7s ease;
+            color: var(--text-primary);
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 580px;
+            line-height: 1.7;
+            margin-bottom: 56px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        /* ── Cards ── */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            max-width: 760px;
+            width: 100%;
+            animation: fadeInUp 0.9s ease;
+        }
+
+        .card {
+            position: relative;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 36px 32px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .card-icon-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .card-icon-wrap.api {
+            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+        }
+
+        .card-icon-wrap.frontend {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border: 1px solid rgba(8, 145, 178, 0.15);
+        }
+
+        .card-icon-wrap svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 28px;
+        }
+
+        .card-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: gap 0.3s ease;
+        }
+
+        .card:hover .card-action {
+            gap: 12px;
+        }
+
+        .card-action.api-action { color: var(--accent-primary); }
+        .card-action.frontend-action { color: var(--accent-cyan); }
+
+        .card-action svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .card-action svg {
+            transform: translateX(4px);
+        }
+
+        /* ── Footer ── */
+        .footer {
+            margin-top: 80px;
+            text-align: center;
+            animation: fadeInUp 1s ease;
+        }
+
+        .footer-text {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+        }
+
+        .footer-tech {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--border-subtle);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .tech-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .tech-dot.django { background: #44b78b; }
+        .tech-dot.react { background: #61dafb; }
+        .tech-dot.jwt { background: #8b5cf6; }
+
+        /* ── Animations ── */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 700px) {
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-pattern"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="container">
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            FFMS — Backend Server Running
+        </div>
+
+        <h1 class="hero-title">
+            <span class="gradient-text">Field Force</span><br>
+            Management System
+        </h1>
+
+        <p class="hero-subtitle">
+            AI-powered field operations platform with role-based access control,
+            real-time visit tracking, and intelligent risk assessment.
+        </p>
+
+        <div class="cards-grid">
+            <a href="/api/docs/" class="card" id="card-api-docs">
+                <div class="card-icon-wrap api">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">API Documentation</h2>
+                <p class="card-description">
+                    Explore all REST API endpoints with detailed request/response schemas, 
+                    authentication requirements, and role-based permissions.
+                </p>
+                <span class="card-action api-action">
+                    Browse API Docs
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </span>
+            </a>
+
+            <a href="https://sapio-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="card" id="card-frontend-app">
+                <div class="card-icon-wrap frontend">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">Frontend Application</h2>
+                <p class="card-description">
+                    Access the live FFMS dashboard — manage tasks, track field visits,
+                    view AI insights, and monitor team performance in real time.
+                </p>
+                <span class="card-action frontend-action">
+                    Open Application
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </span>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p class="footer-text">Powered by FFMS Backend &middot; v1.0</p>
+            <div class="footer-tech">
+                <span class="tech-badge"><span class="tech-dot django"></span>Django REST</span>
+                <span class="tech-badge"><span class="tech-dot react"></span>React + Vite</span>
+                <span class="tech-badge"><span class="tech-dot jwt"></span>JWT Auth</span>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

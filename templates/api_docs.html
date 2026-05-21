@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFMS API Documentation</title>
+    <meta name="description" content="Interactive API documentation for FFMS — Field Force Management System">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-code: #f1f5f9;
+            --bg-code-dark: #1e293b;
+            --border-subtle: rgba(0, 0, 0, 0.07);
+            --border-light: rgba(0, 0, 0, 0.04);
+            --glass-border: rgba(99, 102, 241, 0.1);
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-cyan: #0891b2;
+            --accent-emerald: #059669;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+
+            --method-get: #059669;
+            --method-get-bg: #ecfdf5;
+            --method-get-border: rgba(5, 150, 105, 0.2);
+            --method-post: #2563eb;
+            --method-post-bg: #eff6ff;
+            --method-post-border: rgba(37, 99, 235, 0.2);
+            --method-patch: #d97706;
+            --method-patch-bg: #fffbeb;
+            --method-patch-border: rgba(217, 119, 6, 0.2);
+            --method-put: #ea580c;
+            --method-put-bg: #fff7ed;
+            --method-put-border: rgba(234, 88, 12, 0.2);
+            --method-delete: #dc2626;
+            --method-delete-bg: #fef2f2;
+            --method-delete-border: rgba(220, 38, 38, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ── Background ── */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 85% 80%, rgba(139, 92, 246, 0.03) 0%, transparent 50%);
+        }
+
+        .bg-pattern::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(99, 102, 241, 0.012) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(99, 102, 241, 0.012) 1px, transparent 1px);
+            background-size: 64px 64px;
+        }
+
+        /* ── Layout ── */
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* ── Header ── */
+        .doc-header {
+            margin-bottom: 40px;
+            animation: fadeInDown 0.5s ease;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 7px 16px;
+            border-radius: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.25s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+            border-color: rgba(99, 102, 241, 0.2);
+            box-shadow: var(--shadow-md);
+        }
+
+        .back-link svg { width: 14px; height: 14px; }
+
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 100px;
+            background: #eef2ff;
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            letter-spacing: 0.3px;
+        }
+
+        .doc-title {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .doc-title .gradient-text {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .doc-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 620px;
+        }
+
+        /* ── Base URL bar ── */
+        .base-url-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            background: var(--bg-code-dark);
+            border: 1px solid rgba(30, 41, 59, 0.8);
+            margin-top: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem;
+            flex-wrap: wrap;
+            box-shadow: var(--shadow-md);
+        }
+
+        .base-url-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #94a3b8;
+        }
+
+        .base-url-value {
+            color: #34d399;
+        }
+
+        /* ── Search ── */
+        .search-container {
+            margin-bottom: 32px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .search-wrapper { position: relative; }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            border-radius: 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-input::placeholder { color: var(--text-muted); }
+
+        .search-input:focus {
+            border-color: rgba(99, 102, 241, 0.35);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08), var(--shadow-sm);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-icon svg { width: 18px; height: 18px; }
+
+        /* ── API Group ── */
+        .api-group {
+            margin-bottom: 36px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .group-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .group-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .group-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .group-count {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 3px 10px;
+            border-radius: 100px;
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* ── Endpoint Card ── */
+        .endpoint-card {
+            border-radius: 14px;
+            margin-bottom: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .endpoint-card:hover {
+            border-color: rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .endpoint-card.expanded {
+            border-color: rgba(99, 102, 241, 0.2);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            user-select: none;
+        }
+
+        .endpoint-header:hover {
+            background: rgba(0, 0, 0, 0.015);
+        }
+
+        /* ── Method badge ── */
+        .method-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            min-width: 62px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .method-badge.get { background: var(--method-get-bg); color: var(--method-get); border: 1px solid var(--method-get-border); }
+        .method-badge.post { background: var(--method-post-bg); color: var(--method-post); border: 1px solid var(--method-post-border); }
+        .method-badge.patch { background: var(--method-patch-bg); color: var(--method-patch); border: 1px solid var(--method-patch-border); }
+        .method-badge.put { background: var(--method-put-bg); color: var(--method-put); border: 1px solid var(--method-put-border); }
+        .method-badge.delete { background: var(--method-delete-bg); color: var(--method-delete); border: 1px solid var(--method-delete-border); }
+
+        .endpoint-path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.86rem;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .endpoint-path .param { color: var(--accent-primary); }
+
+        .endpoint-summary {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: none;
+        }
+
+        @media (min-width: 700px) {
+            .endpoint-summary { display: block; }
+        }
+
+        .expand-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .endpoint-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* ── Endpoint Body ── */
+        .endpoint-body {
+            display: none;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .endpoint-card.expanded .endpoint-body { display: block; }
+
+        .endpoint-content { padding: 24px 20px; }
+
+        .endpoint-description {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+
+        /* ── Info sections ── */
+        .info-section { margin-bottom: 24px; }
+        .info-section:last-child { margin-bottom: 0; }
+
+        .info-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        /* ── Badges ── */
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 8px;
+        }
+
+        .badge svg {
+            width: 13px;
+            height: 13px;
+            flex-shrink: 0;
+        }
+
+        .badge-auth {
+            background: #fffbeb;
+            border: 1px solid rgba(217, 119, 6, 0.2);
+            color: #b45309;
+        }
+
+        .badge-public {
+            background: #ecfdf5;
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            color: #047857;
+        }
+
+        .badge-role {
+            background: #f5f3ff;
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            color: #7c3aed;
+        }
+
+        .badge-scope {
+            background: #ecfeff;
+            border: 1px solid rgba(8, 145, 178, 0.15);
+            color: #0e7490;
+        }
+
+        /* ── Schema Table ── */
+        .schema-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .schema-table th {
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.02);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .schema-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: top;
+        }
+
+        .schema-table tr:last-child td { border-bottom: none; }
+
+        .field-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: var(--accent-primary);
+            font-weight: 500;
+        }
+
+        .field-type {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--accent-secondary);
+        }
+
+        .field-required {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #dc2626;
+            text-transform: uppercase;
+        }
+
+        .field-optional {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .field-desc {
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+        }
+
+        /* ── Code Blocks ── */
+        .code-block-wrapper {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-code-dark);
+            border: 1px solid rgba(30, 41, 59, 0.6);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .code-block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .code-block-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #94a3b8;
+        }
+
+        .code-block-status {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 6px;
+        }
+
+        .status-200 { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25); }
+        .status-201 { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.25); }
+        .status-204 { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.25); }
+        .status-400 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
+        .status-401 { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25); }
+        .status-403 { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25); }
+        .status-404 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
+
+        pre.code-block {
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        pre.code-block .json-key { color: #7dd3fc; }
+        pre.code-block .json-string { color: #86efac; }
+        pre.code-block .json-number { color: #fbbf24; }
+        pre.code-block .json-bool { color: #c084fc; }
+        pre.code-block .json-null { color: #94a3b8; }
+
+        /* ── Tabs ── */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 14px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 10px;
+            padding: 4px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .tab-btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 7px 18px;
+            border-radius: 8px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover { color: var(--text-secondary); }
+
+        .tab-btn.active {
+            background: var(--bg-secondary);
+            color: var(--accent-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Query Params ── */
+        .query-params {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .query-param {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 14px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--border-subtle);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .query-param .qp-name { color: var(--accent-primary); font-weight: 500; }
+
+        /* ── Animations ── */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 600px) {
+            .endpoint-header { flex-wrap: wrap; gap: 8px; }
+            .base-url-bar { font-size: 0.76rem; }
+            .schema-table { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-pattern"></div>
+
+    <div class="page-wrapper">
+
+        <!-- Header -->
+        <header class="doc-header">
+            <div class="header-top">
+                <a href="/" class="back-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    Back to Home
+                </a>
+                <span class="version-badge">OAS 3.0 · v1.0.0</span>
+            </div>
+
+            <h1 class="doc-title">
+                <span class="gradient-text">FFMS</span> API Reference
+            </h1>
+            <p class="doc-subtitle">
+                Complete REST API documentation for the Field Force Management System. 
+                All endpoints require JWT Bearer authentication unless noted otherwise.
+            </p>
+
+            <div class="base-url-bar">
+                <span class="base-url-label">Base URL</span>
+                <span class="base-url-value">https://sapio.onrender.com/api</span>
+            </div>
+        </header>
+
+        <!-- Search -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <span class="search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </span>
+                <input type="text" class="search-input" id="search-input" placeholder="Search endpoints... (e.g. login, tasks, visits)">
+            </div>
+        </div>
+
+        <!-- API Endpoints -->
+        <div id="api-container"></div>
+
+    </div>
+
+    <script>
+    // ════════════════════════════════════════════════
+    // SVG Icons for groups (replacing emojis)
+    // ════════════════════════════════════════════════
+    const ICONS = {
+        auth: `<svg viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>`,
+        users: `<svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+        tasks: `<svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+        visits: `<svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+        logs: `<svg viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg>`,
+        reports: `<svg viewBox="0 0 24 24" fill="none" stroke="#db2777" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
+        // Badge inline icons
+        lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+        unlock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`,
+        target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`
+    };
+
+    // ════════════════════════════════════════════════
+    // API Data
+    // ════════════════════════════════════════════════
+    const API_DATA = [
+        {
+            group: "Authentication",
+            icon: "auth",
+            iconBg: "#fffbeb",
+            iconBorder: "rgba(217,119,6,0.18)",
+            endpoints: [
+                {
+                    method: "POST",
+                    path: "/auth/login/",
+                    summary: "Login & get JWT tokens",
+                    description: "Authenticates a user with username and password. Returns JWT access & refresh tokens along with the full user profile, role, scope (region/team), and module-level RBAC permissions.",
+                    auth: "Public",
+                    roles: ["All Users"],
+                    scoping: null,
+                    requestBody: [
+                        { name: "username", type: "string", required: true, desc: "The user's login username" },
+                        { name: "password", type: "string", required: true, desc: "The user's password" }
+                    ],
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            access: "eyJhbGciOiJIUzI1NiIs...",
+                            refresh: "eyJhbGciOiJIUzI1NiIs...",
+                            user: { id: 1, username: "admin_user", email: "admin@ffms.com", first_name: "Admin", last_name: "User" },
+                            profile: {
+                                employee_id: "EMP001", phone: "+91-9999999999", is_active: true,
+                                role: { name: "admin", display: "Admin" },
+                                team: { id: 1, name: "Alpha Team" },
+                                region: { id: 1, name: "North Region" }
+                            },
+                            permissions: [
+                                { module_name: "tasks", can_create: true, can_read: true, can_update: true, can_delete: true }
+                            ]
+                        }
+                    },
+                    errorResponses: [
+                        { status: 400, body: { detail: "Username and password are required." } },
+                        { status: 401, body: { detail: "Invalid credentials." } },
+                        { status: 403, body: { detail: "Account is disabled." } }
+                    ]
+                },
+                {
+                    method: "POST",
+                    path: "/auth/refresh/",
+                    summary: "Refresh access token",
+                    description: "Uses a valid refresh token to obtain a new access token. The refresh token has a 1-day lifetime, while access tokens last 2 hours.",
+                    auth: "Public",
+                    roles: ["All Users"],
+                    scoping: null,
+                    requestBody: [
+                        { name: "refresh", type: "string", required: true, desc: "Valid JWT refresh token" }
+                    ],
+                    responseExample: {
+                        status: 200,
+                        body: { access: "eyJhbGciOiJIUzI1NiIs..." }
+                    },
+                    errorResponses: [
+                        { status: 401, body: { detail: "Token is invalid or expired." } }
+                    ]
+                },
+                {
+                    method: "GET",
+                    path: "/auth/me/",
+                    summary: "Get current user profile",
+                    description: "Returns the authenticated user's profile, role, scope, and module permissions. Used by the frontend to rehydrate auth state on page reload.",
+                    auth: "Bearer Token",
+                    roles: ["All Authenticated Users"],
+                    scoping: null,
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            user: { id: 1, username: "admin_user", email: "admin@ffms.com", first_name: "Admin", last_name: "User" },
+                            profile: {
+                                employee_id: "EMP001", phone: "+91-9999999999", is_active: true,
+                                role: { name: "admin", display: "Admin" },
+                                team: { id: 1, name: "Alpha Team" },
+                                region: { id: 1, name: "North Region" }
+                            },
+                            permissions: [
+                                { module_name: "tasks", can_create: true, can_read: true, can_update: true, can_delete: true }
+                            ]
+                        }
+                    },
+                    errorResponses: [
+                        { status: 401, body: { detail: "Authentication credentials were not provided." } }
+                    ]
+                }
+            ]
+        },
+        {
+            group: "Users",
+            icon: "users",
+            iconBg: "#f5f3ff",
+            iconBorder: "rgba(139,92,246,0.18)",
+            endpoints: [
+                {
+                    method: "GET",
+                    path: "/users/",
+                    summary: "List users (scoped by role)",
+                    description: "Returns a paginated list of active EmployeeProfiles. Results are automatically scoped: Admin/Auditor see all users, Regional Managers see users in their region, Team Leads see their team members.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead"],
+                    scoping: "Regional Manager → own region · Team Lead → own team",
+                    queryParams: [
+                        { name: "role", desc: "Filter by role name (e.g. field_agent)" },
+                        { name: "page", desc: "Page number for pagination" }
+                    ],
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            count: 15, next: "https://sapio.onrender.com/api/users/?page=2", previous: null,
+                            results: [
+                                { id: 5, username: "agent_ravi", first_name: "Ravi", last_name: "Kumar", role: "field_agent", employee_id: "EMP005", team: "Alpha Team", region: "North Region" }
+                            ]
+                        }
+                    },
+                    errorResponses: [
+                        { status: 403, body: { detail: "You do not have permission to perform this action." } }
+                    ]
+                }
+            ]
+        },
+        {
+            group: "Tasks",
+            icon: "tasks",
+            iconBg: "#eef2ff",
+            iconBorder: "rgba(99,102,241,0.18)",
+            endpoints: [
+                {
+                    method: "GET",
+                    path: "/tasks/",
+                    summary: "List all tasks (scoped)",
+                    description: "Returns a paginated list of tasks. Automatically filtered by ScopeFilterMixin based on user's role: Admin sees all, Regional Manager sees their region, Team Lead sees their team, Field Agent sees only tasks assigned to them.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead", "Field Agent"],
+                    scoping: "Admin → all · RM → own region · TL → own team · Agent → own tasks",
+                    queryParams: [{ name: "page", desc: "Page number" }],
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            count: 25, next: "https://sapio.onrender.com/api/tasks/?page=2", previous: null,
+                            results: [{
+                                id: 1, title: "Site Inspection — Sector 14", status: "in_progress", priority: "high", due_date: "2026-06-01",
+                                assigned_to: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi" },
+                                team_scope: { id: 1, name: "Alpha Team" },
+                                region_scope: { id: 1, name: "North Region", code: "NR" },
+                                created_at: "2026-05-20T10:30:00+05:30"
+                            }]
+                        }
+                    },
+                    errorResponses: []
+                },
+                {
+                    method: "POST",
+                    path: "/tasks/",
+                    summary: "Create a new task",
+                    description: "Creates a new task. Scope fields (team_scope, region_scope) are automatically set from the assigned agent's profile, or the creator's profile if unassigned. Field agents are forbidden from creating tasks.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Regional Manager", "Team Lead"],
+                    scoping: "Validates assigned_to is within creator's scope",
+                    requestBody: [
+                        { name: "title", type: "string", required: true, desc: "Task title (max 200 chars)" },
+                        { name: "description", type: "string", required: true, desc: "Detailed description" },
+                        { name: "priority", type: "string", required: false, desc: "low | medium | high (default: medium)" },
+                        { name: "status", type: "string", required: false, desc: "pending | assigned | in_progress | completed | cancelled (default: pending)" },
+                        { name: "due_date", type: "date", required: true, desc: "YYYY-MM-DD — cannot be in the past" },
+                        { name: "assigned_to", type: "integer", required: false, desc: "EmployeeProfile ID to assign the task to" }
+                    ],
+                    responseExample: {
+                        status: 201,
+                        body: {
+                            id: 12, title: "New Team Task", description: "Created by Team Lead via API",
+                            status: "pending", priority: "medium", due_date: "2026-06-01",
+                            assigned_to: null,
+                            team_scope: { id: 1, name: "Alpha Team" },
+                            region_scope: { id: 1, name: "North Region", code: "NR" },
+                            created_at: "2026-05-21T15:00:00+05:30"
+                        }
+                    },
+                    errorResponses: [
+                        { status: 400, body: { due_date: ["Due date cannot be in the past."] } },
+                        { status: 403, body: { detail: "You do not have permission to perform this action." } }
+                    ]
+                },
+                {
+                    method: "GET",
+                    path: "/tasks/{id}/",
+                    summary: "Get task detail",
+                    description: "Returns full task details including description, creator info, timestamps, and all associated visits with AI-generated insights (summary, recommendation, risk flag).",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead", "Field Agent"],
+                    scoping: "Filtered by ScopeFilterMixin",
+                    pathParams: [{ name: "id", type: "integer", desc: "Task ID" }],
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            id: 1, title: "Site Inspection — Sector 14", description: "Full inspection of the premises...",
+                            status: "in_progress", priority: "high", due_date: "2026-06-01",
+                            assigned_to: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi" },
+                            created_by: { id: 3, employee_id: "EMP003", username: "tl_alpha", first_name: "Team Lead" },
+                            team_scope: { id: 1, name: "Alpha Team" },
+                            region_scope: { id: 1, name: "North Region", code: "NR" },
+                            created_at: "2026-05-20T10:30:00+05:30", updated_at: "2026-05-21T14:00:00+05:30",
+                            visits: [{
+                                id: 10, status: "completed",
+                                start_time: "2026-05-21T09:00:00+05:30", end_time: "2026-05-21T10:30:00+05:30",
+                                visit_notes: "Customer was cooperative...",
+                                ai_summary: "Routine inspection completed successfully.",
+                                ai_recommendation: "No follow-up required.",
+                                ai_risk_flag: "low",
+                                started_by: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi" },
+                                created_at: "2026-05-21T09:00:00+05:30"
+                            }]
+                        }
+                    },
+                    errorResponses: [{ status: 404, body: { detail: "Not found." } }]
+                },
+                {
+                    method: "PUT",
+                    path: "/tasks/{id}/",
+                    summary: "Update task (full)",
+                    description: "Full update of a task. All required fields must be provided. Updates scope fields if assigned_to changes. Logs status changes to ActivityLog.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Regional Manager", "Team Lead"],
+                    scoping: "Validates assigned_to is within updater's scope",
+                    pathParams: [{ name: "id", type: "integer", desc: "Task ID" }],
+                    requestBody: [
+                        { name: "title", type: "string", required: true, desc: "Task title" },
+                        { name: "description", type: "string", required: true, desc: "Task description" },
+                        { name: "priority", type: "string", required: false, desc: "low | medium | high" },
+                        { name: "status", type: "string", required: false, desc: "pending | assigned | in_progress | completed | cancelled" },
+                        { name: "due_date", type: "date", required: true, desc: "YYYY-MM-DD" },
+                        { name: "assigned_to", type: "integer", required: false, desc: "EmployeeProfile ID" }
+                    ],
+                    responseExample: { status: 200, body: { id: 1, title: "Updated Task", status: "assigned", priority: "high", due_date: "2026-06-15" } },
+                    errorResponses: []
+                },
+                {
+                    method: "PATCH",
+                    path: "/tasks/{id}/",
+                    summary: "Partial update task",
+                    description: "Partial update — only send the fields you want to change. Updates scope fields if assigned_to changes. Logs status changes.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Regional Manager", "Team Lead"],
+                    scoping: "Validates assigned_to is within updater's scope",
+                    pathParams: [{ name: "id", type: "integer", desc: "Task ID" }],
+                    requestBody: [
+                        { name: "status", type: "string", required: false, desc: "New status" },
+                        { name: "priority", type: "string", required: false, desc: "New priority" },
+                        { name: "assigned_to", type: "integer", required: false, desc: "EmployeeProfile ID" }
+                    ],
+                    responseExample: { status: 200, body: { id: 1, title: "Site Inspection — Sector 14", status: "completed" } },
+                    errorResponses: []
+                },
+                {
+                    method: "DELETE",
+                    path: "/tasks/{id}/",
+                    summary: "Delete a task",
+                    description: "Permanently deletes a task and its associated visits. This action is irreversible.",
+                    auth: "Bearer Token",
+                    roles: ["Admin"],
+                    scoping: null,
+                    pathParams: [{ name: "id", type: "integer", desc: "Task ID" }],
+                    requestBody: null,
+                    responseExample: { status: 204, body: null },
+                    errorResponses: [{ status: 403, body: { detail: "You do not have permission to perform this action." } }]
+                },
+                {
+                    method: "PATCH",
+                    path: "/tasks/{id}/assign/",
+                    summary: "Assign or reassign a task",
+                    description: "Special action to assign or reassign a task to an agent. Validates that the target agent is within the assigner's scope (region/team). Updates scope fields and creates an activity log entry.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Regional Manager", "Team Lead"],
+                    scoping: "Cannot assign outside your region (RM) or team (TL)",
+                    pathParams: [{ name: "id", type: "integer", desc: "Task ID" }],
+                    requestBody: [
+                        { name: "assigned_to", type: "integer", required: true, desc: "EmployeeProfile ID of the agent" }
+                    ],
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            id: 1, title: "Site Inspection — Sector 14", status: "assigned",
+                            assigned_to: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi" }
+                        }
+                    },
+                    errorResponses: [{ status: 400, body: { assigned_to: ["Cannot assign to an agent outside your team."] } }]
+                }
+            ]
+        },
+        {
+            group: "Visits",
+            icon: "visits",
+            iconBg: "#ecfdf5",
+            iconBorder: "rgba(5,150,105,0.18)",
+            endpoints: [
+                {
+                    method: "GET",
+                    path: "/visits/",
+                    summary: "List all visits (scoped)",
+                    description: "Returns a paginated list of visits. Scoped through the related task's scope fields — uses task__region_scope, task__team_scope, and task__assigned_to for filtering.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead", "Field Agent"],
+                    scoping: "Scoped via related task's region/team/assigned_to",
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            count: 10,
+                            results: [{
+                                id: 10,
+                                task: { id: 1, title: "Site Inspection", status: "in_progress", priority: "high", due_date: "2026-06-01" },
+                                started_by: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi" },
+                                status: "completed", start_time: "2026-05-21T09:00:00+05:30", end_time: "2026-05-21T10:30:00+05:30",
+                                ai_risk_flag: "low"
+                            }]
+                        }
+                    },
+                    errorResponses: []
+                },
+                {
+                    method: "GET",
+                    path: "/visits/{id}/",
+                    summary: "Get visit detail",
+                    description: "Returns full visit details including notes, AI summary, AI recommendation, risk flag, and timestamps.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead", "Field Agent"],
+                    scoping: "Scoped via related task",
+                    pathParams: [{ name: "id", type: "integer", desc: "Visit ID" }],
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            id: 10,
+                            task: { id: 1, title: "Site Inspection", status: "in_progress", priority: "high", due_date: "2026-06-01" },
+                            started_by: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi" },
+                            status: "completed",
+                            start_time: "2026-05-21T09:00:00+05:30", end_time: "2026-05-21T10:30:00+05:30",
+                            visit_notes: "Customer was happy, routine check completed.",
+                            ai_summary: "Routine field inspection completed without issues.",
+                            ai_recommendation: "No immediate follow-up required. Schedule next visit in 30 days.",
+                            ai_risk_flag: "low",
+                            created_at: "2026-05-21T09:00:00+05:30"
+                        }
+                    },
+                    errorResponses: [{ status: 404, body: { detail: "Not found." } }]
+                },
+                {
+                    method: "POST",
+                    path: "/visits/start/",
+                    summary: "Start a new visit",
+                    description: "Creates a new visit for a task assigned to the current agent. Validates the task exists, is assigned to the agent, isn't completed/cancelled, and has no active visit. Automatically sets task status to 'in_progress' if it was 'pending'.",
+                    auth: "Bearer Token",
+                    roles: ["Field Agent"],
+                    scoping: "Only for tasks assigned to the agent",
+                    requestBody: [
+                        { name: "task_id", type: "integer", required: true, desc: "ID of the task to start a visit for" }
+                    ],
+                    responseExample: {
+                        status: 201,
+                        body: {
+                            id: 15,
+                            task: { id: 20, title: "Customer Follow-up", status: "in_progress", priority: "medium", due_date: "2026-06-01" },
+                            started_by: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi" },
+                            status: "started",
+                            start_time: "2026-05-21T15:00:00+05:30", end_time: null,
+                            visit_notes: "", ai_summary: "", ai_recommendation: "",
+                            ai_risk_flag: "low",
+                            created_at: "2026-05-21T15:00:00+05:30"
+                        }
+                    },
+                    errorResponses: [
+                        { status: 400, body: { task_id: ["Task does not exist."] } },
+                        { status: 400, body: { task_id: ["You can only start visits for tasks assigned to you."] } },
+                        { status: 400, body: { task_id: ["An active visit already exists for this task."] } }
+                    ]
+                },
+                {
+                    method: "POST",
+                    path: "/visits/{id}/complete/",
+                    summary: "Complete a visit (triggers AI)",
+                    description: "Marks an ongoing visit as completed. Requires visit_notes — the notes are sent to the AI Service which generates a summary, recommendation, and risk flag (low/medium/high). This is the core AI-powered feature of SAPIO.",
+                    auth: "Bearer Token",
+                    roles: ["Field Agent"],
+                    scoping: "Only visits started by the agent",
+                    pathParams: [{ name: "id", type: "integer", desc: "Visit ID" }],
+                    requestBody: [
+                        { name: "visit_notes", type: "string", required: true, desc: "Agent's raw field notes (cannot be blank). AI processes these to generate insights." }
+                    ],
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            id: 10,
+                            task: { id: 1, title: "Site Inspection", status: "in_progress", priority: "high", due_date: "2026-06-01" },
+                            started_by: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi" },
+                            status: "completed",
+                            start_time: "2026-05-21T09:00:00+05:30", end_time: "2026-05-21T10:30:00+05:30",
+                            visit_notes: "Customer was extremely angry and refused to sign.",
+                            ai_summary: "Customer exhibited hostility and refused documentation signing.",
+                            ai_recommendation: "Escalate to supervisor. Schedule follow-up with senior representative within 48 hours.",
+                            ai_risk_flag: "high",
+                            created_at: "2026-05-21T09:00:00+05:30"
+                        }
+                    },
+                    errorResponses: [
+                        { status: 400, body: { non_field_errors: ["This visit is already completed."] } },
+                        { status: 400, body: { visit_notes: ["This field may not be blank."] } }
+                    ]
+                }
+            ]
+        },
+        {
+            group: "Activity Logs",
+            icon: "logs",
+            iconBg: "#ecfeff",
+            iconBorder: "rgba(8,145,178,0.18)",
+            endpoints: [
+                {
+                    method: "GET",
+                    path: "/logs/",
+                    summary: "List activity logs (scoped, filterable)",
+                    description: "Read-only audit trail. Admin/Auditor see all logs, Regional Manager sees logs from their region, Team Lead sees their team's logs. Field agents are completely forbidden (403). Supports filtering via query params.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead"],
+                    scoping: "Admin/Auditor → all · RM → own region · TL → own team · Agent → 403",
+                    queryParams: [
+                        { name: "action", desc: "Filter: created, assigned, started, completed, status_changed, updated" },
+                        { name: "entity_type", desc: "Filter: task, visit" },
+                        { name: "user__id", desc: "Filter by user ID" },
+                        { name: "page", desc: "Page number" }
+                    ],
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            count: 50,
+                            results: [{
+                                id: 100,
+                                user_profile: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi", role_name: "field_agent" },
+                                action: "completed", entity_type: "visit", entity_id: 10,
+                                description: "Visit completed for task 1.",
+                                timestamp: "2026-05-21T10:30:00+05:30"
+                            }]
+                        }
+                    },
+                    errorResponses: [{ status: 403, body: { detail: "You do not have permission to perform this action." } }]
+                },
+                {
+                    method: "GET",
+                    path: "/logs/{id}/",
+                    summary: "Get a single log entry",
+                    description: "Retrieve a single activity log entry by its ID. Same role-based scoping as the list endpoint.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead"],
+                    scoping: "Same as list endpoint",
+                    pathParams: [{ name: "id", type: "integer", desc: "ActivityLog ID" }],
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            id: 100,
+                            user_profile: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi", role_name: "field_agent" },
+                            action: "completed", entity_type: "visit", entity_id: 10,
+                            description: "Visit completed for task 1.",
+                            timestamp: "2026-05-21T10:30:00+05:30"
+                        }
+                    },
+                    errorResponses: [{ status: 404, body: { detail: "Not found." } }]
+                }
+            ]
+        },
+        {
+            group: "Reports & Dashboard",
+            icon: "reports",
+            iconBg: "#fdf2f8",
+            iconBorder: "rgba(219,39,119,0.18)",
+            endpoints: [
+                {
+                    method: "GET",
+                    path: "/reports/pending-tasks/",
+                    summary: "Pending tasks by region & team",
+                    description: "Returns pending tasks count grouped by region and team. Scoped based on the requesting user's role.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead"],
+                    scoping: "Scoped by role",
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: [
+                            { region_name: "North Region", team_name: "Alpha Team", pending_count: 5 },
+                            { region_name: "South Region", team_name: "Beta Team", pending_count: 3 }
+                        ]
+                    },
+                    errorResponses: []
+                },
+                {
+                    method: "GET",
+                    path: "/reports/task-distribution/",
+                    summary: "Task status counts by region",
+                    description: "Returns task counts grouped by region and status (pending, assigned, in_progress, completed, cancelled). Scoped by user's role.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead"],
+                    scoping: "Scoped by role",
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: [
+                            { region_name: "North Region", task_status: "pending", count: 5 },
+                            { region_name: "North Region", task_status: "in_progress", count: 8 },
+                            { region_name: "North Region", task_status: "completed", count: 12 }
+                        ]
+                    },
+                    errorResponses: []
+                },
+                {
+                    method: "GET",
+                    path: "/reports/recent-visits/",
+                    summary: "Visits completed in last 7 days",
+                    description: "Returns completed visits from the last 7 days grouped by date with daily counts. Scoped by user's role.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead", "Field Agent"],
+                    scoping: "Scoped by role",
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: [
+                            { date: "2026-05-20", completed_count: 7 },
+                            { date: "2026-05-21", completed_count: 4 }
+                        ]
+                    },
+                    errorResponses: []
+                },
+                {
+                    method: "GET",
+                    path: "/reports/completion-time/",
+                    summary: "Avg completion time per agent",
+                    description: "Returns the average visit completion time in minutes for each agent. Calculated from the difference between start_time and end_time of completed visits. Scoped by role.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead"],
+                    scoping: "Scoped by role",
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: [
+                            { agent_username: "agent_ravi", agent_employee_id: "EMP005", visit_count: 8, avg_completion_minutes: 45.5 },
+                            { agent_username: "agent_priya", agent_employee_id: "EMP006", visit_count: 12, avg_completion_minutes: 38.2 }
+                        ]
+                    },
+                    errorResponses: []
+                },
+                {
+                    method: "GET",
+                    path: "/reports/dashboard/",
+                    summary: "Comprehensive dashboard summary",
+                    description: "Returns a scoped summary with: task counts by status, visit summary (total, completed, started, high-risk count), and the 5 most recent activity logs. The ultimate overview endpoint.",
+                    auth: "Bearer Token",
+                    roles: ["Admin", "Auditor", "Regional Manager", "Team Lead", "Field Agent"],
+                    scoping: "Admin → global · RM → region · TL → team · Agent → self-scoped",
+                    requestBody: null,
+                    responseExample: {
+                        status: 200,
+                        body: {
+                            tasks: { total: 25, by_status: { pending: 5, assigned: 3, in_progress: 8, completed: 7, cancelled: 2 } },
+                            visits: { total: 18, completed: 15, started: 3, high_risk: 2 },
+                            recent_activity: [{
+                                id: 100,
+                                user_profile: { id: 5, employee_id: "EMP005", username: "agent_ravi", first_name: "Ravi", role_name: "field_agent" },
+                                action: "completed", entity_type: "visit", entity_id: 10,
+                                description: "Visit completed for task 1.",
+                                timestamp: "2026-05-21T10:30:00+05:30"
+                            }]
+                        }
+                    },
+                    errorResponses: []
+                }
+            ]
+        }
+    ];
+
+    // ════════════════════════════════════════════════
+    // Rendering
+    // ════════════════════════════════════════════════
+
+    function syntaxHighlightJSON(json, indent = 2) {
+        if (json === null) return '<span class="json-null">No content</span>';
+        const str = JSON.stringify(json, null, indent);
+        return str.replace(
+            /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+            (match) => {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    cls = /:$/.test(match) ? 'json-key' : 'json-string';
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-bool';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return `<span class="${cls}">${match}</span>`;
+            }
+        );
+    }
+
+    function renderPathWithParams(path) {
+        return path.replace(/\{(\w+)\}/g, '<span class="param">{$1}</span>');
+    }
+
+    function renderEndpointCard(endpoint, index) {
+        const method = endpoint.method.toLowerCase();
+        const cardId = `endpoint-${index}`;
+        let bodyHTML = '';
+
+        bodyHTML += `<p class="endpoint-description">${endpoint.description}</p>`;
+
+        // Auth & Roles
+        bodyHTML += `<div class="info-section">
+            <div class="info-label">Authentication & Authorization</div>
+            <div class="badge-row">
+                <span class="badge ${endpoint.auth === 'Public' ? 'badge-public' : 'badge-auth'}">
+                    ${endpoint.auth === 'Public' ? ICONS.unlock : ICONS.lock} ${endpoint.auth === 'Public' ? 'Public' : endpoint.auth}
+                </span>
+                ${endpoint.roles.map(r => `<span class="badge badge-role">${r}</span>`).join('')}
+                ${endpoint.scoping ? `<span class="badge badge-scope">${ICONS.target} ${endpoint.scoping}</span>` : ''}
+            </div>
+        </div>`;
+
+        // Path Parameters
+        if (endpoint.pathParams && endpoint.pathParams.length > 0) {
+            bodyHTML += `<div class="info-section">
+                <div class="info-label">Path Parameters</div>
+                <table class="schema-table">
+                    <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+                    <tbody>${endpoint.pathParams.map(p => `
+                        <tr><td><span class="field-name">${p.name}</span></td><td><span class="field-type">${p.type}</span></td><td><span class="field-desc">${p.desc}</span></td></tr>
+                    `).join('')}</tbody>
+                </table>
+            </div>`;
+        }
+
+        // Query Parameters
+        if (endpoint.queryParams && endpoint.queryParams.length > 0) {
+            bodyHTML += `<div class="info-section">
+                <div class="info-label">Query Parameters</div>
+                <div class="query-params">
+                    ${endpoint.queryParams.map(p => `<span class="query-param"><span class="qp-name">?${p.name}</span> — ${p.desc}</span>`).join('')}
+                </div>
+            </div>`;
+        }
+
+        // Request Body
+        if (endpoint.requestBody && endpoint.requestBody.length > 0) {
+            bodyHTML += `<div class="info-section">
+                <div class="info-label">Request Body <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:0.7rem;">application/json</span></div>
+                <table class="schema-table">
+                    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                    <tbody>${endpoint.requestBody.map(f => `
+                        <tr>
+                            <td><span class="field-name">${f.name}</span></td>
+                            <td><span class="field-type">${f.type}</span></td>
+                            <td>${f.required ? '<span class="field-required">required</span>' : '<span class="field-optional">optional</span>'}</td>
+                            <td><span class="field-desc">${f.desc}</span></td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            </div>`;
+        }
+
+        // Responses
+        const hasErrors = endpoint.errorResponses && endpoint.errorResponses.length > 0;
+        const tabId = `tabs-${index}`;
+
+        bodyHTML += `<div class="info-section"><div class="info-label">Responses</div>`;
+
+        if (hasErrors) {
+            bodyHTML += `<div class="tabs" data-tab-group="${tabId}">
+                <button class="tab-btn active" data-tab="${tabId}-success">Success</button>
+                <button class="tab-btn" data-tab="${tabId}-errors">Errors</button>
+            </div>`;
+        }
+
+        const statusText = { 200: 'OK', 201: 'Created', 204: 'No Content' };
+        bodyHTML += `<div class="tab-panel active" id="${tabId}-success">
+            <div class="code-block-wrapper">
+                <div class="code-block-header">
+                    <span class="code-block-label">Response</span>
+                    <span class="code-block-status status-${endpoint.responseExample.status}">${endpoint.responseExample.status} ${statusText[endpoint.responseExample.status] || ''}</span>
+                </div>
+                <pre class="code-block">${endpoint.responseExample.body === null ? '<span class="json-null">// No response body</span>' : syntaxHighlightJSON(endpoint.responseExample.body)}</pre>
+            </div>
+        </div>`;
+
+        if (hasErrors) {
+            const errText = { 400: 'Bad Request', 401: 'Unauthorized', 403: 'Forbidden', 404: 'Not Found' };
+            bodyHTML += `<div class="tab-panel" id="${tabId}-errors">`;
+            endpoint.errorResponses.forEach(err => {
+                bodyHTML += `<div class="code-block-wrapper" style="margin-bottom: 10px;">
+                    <div class="code-block-header">
+                        <span class="code-block-label">Error Response</span>
+                        <span class="code-block-status status-${err.status}">${err.status} ${errText[err.status] || 'Error'}</span>
+                    </div>
+                    <pre class="code-block">${syntaxHighlightJSON(err.body)}</pre>
+                </div>`;
+            });
+            bodyHTML += `</div>`;
+        }
+
+        bodyHTML += `</div>`;
+
+        return `
+        <div class="endpoint-card" id="${cardId}" data-search="${endpoint.method} ${endpoint.path} ${endpoint.summary}">
+            <div class="endpoint-header" onclick="toggleEndpoint('${cardId}')">
+                <span class="method-badge ${method}">${endpoint.method}</span>
+                <span class="endpoint-path">${renderPathWithParams(endpoint.path)}</span>
+                <span class="endpoint-summary">${endpoint.summary}</span>
+                <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </div>
+            <div class="endpoint-body">
+                <div class="endpoint-content">${bodyHTML}</div>
+            </div>
+        </div>`;
+    }
+
+    function renderAll() {
+        const container = document.getElementById('api-container');
+        let html = '';
+        let globalIndex = 0;
+
+        API_DATA.forEach(group => {
+            html += `<div class="api-group" data-group="${group.group}">
+                <div class="group-header">
+                    <div class="group-icon" style="background:${group.iconBg};border:1px solid ${group.iconBorder}">${ICONS[group.icon]}</div>
+                    <h2 class="group-title">${group.group}</h2>
+                    <span class="group-count">${group.endpoints.length} endpoint${group.endpoints.length !== 1 ? 's' : ''}</span>
+                </div>`;
+            group.endpoints.forEach(ep => {
+                html += renderEndpointCard(ep, globalIndex);
+                globalIndex++;
+            });
+            html += `</div>`;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // ════════════════════════════════════════════════
+    // Interactivity
+    // ════════════════════════════════════════════════
+
+    function toggleEndpoint(cardId) {
+        document.getElementById(cardId).classList.toggle('expanded');
+    }
+
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('tab-btn')) {
+            const targetTab = e.target.dataset.tab;
+            e.target.closest('.tabs').querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            const section = e.target.closest('.info-section');
+            section.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.toggle('active', panel.id === targetTab);
+            });
+        }
+    });
+
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        document.querySelectorAll('.api-group').forEach(group => {
+            const cards = group.querySelectorAll('.endpoint-card');
+            let visible = 0;
+            cards.forEach(card => {
+                const match = !query || card.dataset.search.toLowerCase().includes(query);
+                card.classList.toggle('hidden', !match);
+                if (match) visible++;
+            });
+            group.classList.toggle('hidden', visible === 0 && !!query);
+        });
+    });
+
+    renderAll();
+    </script>
+
+</body>
+</html>
