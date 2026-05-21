@@ -24,13 +24,12 @@ class VisitViewSet(ScopeFilterMixin, viewsets.ModelViewSet):
     scope_field_team = 'task__team_scope'
     scope_field_assigned = 'task__assigned_to'
 
-    def get_queryset(self):
-        return Visit.objects.all().select_related(
-            'task__assigned_to', 
-            'task__team_scope', 
-            'task__region_scope',
-            'started_by__user'
-        )
+    queryset = Visit.objects.all().select_related(
+        'task__assigned_to', 
+        'task__team_scope', 
+        'task__region_scope',
+        'started_by__user'
+    )
 
     def get_permissions(self):
         permissions = [IsAuthenticated()]

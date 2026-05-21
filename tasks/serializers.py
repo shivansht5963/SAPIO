@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Task
 from accounts.models import EmployeeProfile, Team, Region
+from visits.models import Visit
 
 class MinimalEmployeeProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
@@ -20,6 +21,18 @@ class MinimalRegionSerializer(serializers.ModelSerializer):
         model = Region
         fields = ('id', 'name', 'code')
 
+class VisitForTaskSerializer(serializers.ModelSerializer):
+    """Nested serializer for visits shown inside task detail — includes AI insights."""
+    started_by = MinimalEmployeeProfileSerializer(read_only=True)
+
+    class Meta:
+        model = Visit
+        fields = (
+            'id', 'status', 'start_time', 'end_time',
+            'visit_notes', 'ai_summary', 'ai_recommendation', 'ai_risk_flag',
+            'started_by', 'created_at',
+        )
+
 class TaskListSerializer(serializers.ModelSerializer):
     assigned_to = MinimalEmployeeProfileSerializer(read_only=True)
     team_scope = MinimalTeamSerializer(read_only=True)
@@ -34,9 +47,10 @@ class TaskListSerializer(serializers.ModelSerializer):
 
 class TaskDetailSerializer(TaskListSerializer):
     created_by = MinimalEmployeeProfileSerializer(read_only=True)
+    visits = VisitForTaskSerializer(many=True, read_only=True)
 
     class Meta(TaskListSerializer.Meta):
-        fields = TaskListSerializer.Meta.fields + ('description', 'created_by', 'updated_at')
+        fields = TaskListSerializer.Meta.fields + ('description', 'created_by', 'updated_at', 'visits')
 
 class TaskCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:

@@ -28,7 +28,7 @@ class TaskViewSet(ScopeFilterMixin, viewsets.ModelViewSet):
 
     queryset = Task.objects.all().select_related(
         'assigned_to__user', 'created_by__user', 'team_scope', 'region_scope'
-    )
+    ).prefetch_related('visits__started_by__user')
 
     def get_permissions(self):
         """Map DRF actions to ModulePermission read/create/update/delete."""
