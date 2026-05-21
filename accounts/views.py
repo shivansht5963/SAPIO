@@ -1,15 +1,18 @@
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
-from .models import ModuleAccess
+from .models import ModuleAccess, EmployeeProfile
+from .utils import ModulePermission
 from .serializers import (
     UserProfileSerializer,
     EmployeeProfileSerializer,
     ModuleAccessSerializer,
+    UserListSerializer,
 )
 
 
@@ -86,3 +89,38 @@ class MeView(APIView):
             'profile': EmployeeProfileSerializer(profile).data,
             'permissions': ModuleAccessSerializer(permissions, many=True).data,
         }, status=status.HTTP_200_OK)
+
+
+class UserListView(ListAPIView):
+    """
+    GET /api/users/
+    Returns a paginated list of users (EmployeeProfiles).
+    Scoped by the requesting user's role.
+    Supports ?role=field_agent filter.
+    """
+    serializer_class = UserListSerializer
+    permission_classes = [IsAuthenticated, ModulePermission('users', 'read')]
+
+    def get_queryset(self):
+        qs = EmployeeProfile.objects.filter(
+            is_active=True
+        ).select_related('user', 'role', 'team', 'region')
+
+        user = self.request.user
+
+        # Role-based scoping
+        if hasattr(user, 'profile'):
+            role = user.profile.role.name
+            if role == 'regional_manager' and user.profile.region:
+                qs = qs.filter(region=user.profile.region)
+            elif role == 'team_lead' and user.profile.team:
+                qs = qs.filter(team=user.profile.team)
+            # admin/auditor see all
+
+        # Optional role filter via query param
+        role_filter = self.request.query_params.get('role')
+        if role_filter:
+            qs = qs.filter(role__name=role_filter)
+
+        return qs.order_by('employee_id')
+

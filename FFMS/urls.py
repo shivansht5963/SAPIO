@@ -6,10 +6,12 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 """
 from django.contrib import admin
 from django.urls import path, include
+from accounts.views import UserListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('accounts.urls')),
+    path('api/users/', UserListView.as_view(), name='user-list'),
     path('api/', include('tasks.urls')),
     path('api/', include('visits.urls')),
     path('api/', include('activity_logs.urls')),

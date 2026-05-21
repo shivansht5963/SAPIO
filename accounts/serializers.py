@@ -52,3 +52,19 @@ class MeResponseSerializer(serializers.Serializer):
     user = UserProfileSerializer(read_only=True)
     profile = EmployeeProfileSerializer(read_only=True)
     permissions = ModuleAccessSerializer(many=True, read_only=True)
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    """Flat representation of EmployeeProfile for the /api/users/ endpoint."""
+    username = serializers.CharField(source='user.username', read_only=True)
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
+    role = serializers.CharField(source='role.name', read_only=True)
+    team = serializers.CharField(source='team.name', read_only=True, default=None)
+    region = serializers.CharField(source='region.name', read_only=True, default=None)
+
+    class Meta:
+        model = EmployeeProfile
+        fields = ('id', 'username', 'first_name', 'last_name', 'role', 'employee_id', 'team', 'region')
+        read_only_fields = fields
+
