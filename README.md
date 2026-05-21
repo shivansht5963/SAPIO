@@ -17,7 +17,7 @@ An AI-powered backend for managing field operations, built with Django REST Fram
 - **Backend:** Python 3.12, Django 5.0, Django REST Framework
 - **Auth:** JWT (SimpleJWT) — 2h access / 1d refresh tokens
 - **Database:** SQLite (dev) 
-- **AI Service:** Gemini API for visit note analysis
+- **AI Service:** Mocked for now (pluggable for any LLM API)
 - **Frontend:** React + Vite (separate repo)
 - **Deployment:** Render (backend), Vercel (frontend)
 
