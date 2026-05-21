@@ -1,0 +1,251 @@
+### FFMS — Complete API Test File
+### Use with VS Code REST Client extension
+### Documentation: docs/API.md
+
+@baseUrl = http://127.0.0.1:8000/api
+
+# =====================================================
+# STEP 1: Run all Login requests first to capture tokens
+# =====================================================
+
+### Login as Admin
+# @name adminLogin
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "username": "admin_user",
+    "password": "admin123"
+}
+
+###
+@adminToken = {{adminLogin.response.body.access}}
+
+### Login as Regional Manager (North)
+# @name rmLogin
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "username": "rm_north",
+    "password": "pass123"
+}
+
+###
+@rmToken = {{rmLogin.response.body.access}}
+
+### Login as Team Lead
+# @name leadLogin
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "username": "tl_alpha",
+    "password": "pass123"
+}
+
+###
+@leadToken = {{leadLogin.response.body.access}}
+
+### Login as Field Agent
+# @name agentLogin
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "username": "agent_ravi",
+    "password": "pass123"
+}
+
+###
+@agentToken = {{agentLogin.response.body.access}}
+
+### Login as Auditor
+# @name auditorLogin
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "username": "auditor_meera",
+    "password": "pass123"
+}
+
+###
+@auditorToken = {{auditorLogin.response.body.access}}
+
+### Refresh Token (use when access token expires)
+POST {{baseUrl}}/auth/refresh/
+Content-Type: application/json
+
+{
+    "refresh": "PASTE_REFRESH_TOKEN_HERE"
+}
+
+### Get My Profile (any role)
+GET {{baseUrl}}/auth/me/
+Authorization: Bearer {{adminToken}}
+
+# =====================================================
+# MODULE: Tasks
+# =====================================================
+
+### List Tasks (Lead — sees only their team's tasks)
+GET {{baseUrl}}/tasks/
+Authorization: Bearer {{leadToken}}
+
+### List Tasks (Agent — sees only tasks assigned to them)
+GET {{baseUrl}}/tasks/
+Authorization: Bearer {{agentToken}}
+
+### List Tasks (Admin — sees all)
+GET {{baseUrl}}/tasks/
+Authorization: Bearer {{adminToken}}
+
+### Get Task Detail
+GET {{baseUrl}}/tasks/1/
+Authorization: Bearer {{leadToken}}
+
+### Create Task (Lead assigns to agent_ravi — EmployeeProfile ID 5)
+POST {{baseUrl}}/tasks/
+Authorization: Bearer {{leadToken}}
+Content-Type: application/json
+
+{
+    "title": "New Site Inspection",
+    "description": "Inspect the new storage facility at warehouse B.",
+    "priority": "high",
+    "due_date": "2026-06-15",
+    "assigned_to": 5
+}
+
+### Update Task Status
+PATCH {{baseUrl}}/tasks/1/
+Authorization: Bearer {{leadToken}}
+Content-Type: application/json
+
+{
+    "status": "completed"
+}
+
+### Assign / Reassign Task to Another Agent
+PATCH {{baseUrl}}/tasks/1/assign/
+Authorization: Bearer {{leadToken}}
+Content-Type: application/json
+
+{
+    "assigned_to": 6
+}
+
+### Delete Task (Admin only)
+DELETE {{baseUrl}}/tasks/1/
+Authorization: Bearer {{adminToken}}
+
+# =====================================================
+# MODULE: Visits
+# =====================================================
+
+### List Visits (Lead — scoped to team)
+GET {{baseUrl}}/visits/
+Authorization: Bearer {{leadToken}}
+
+### List Visits (Agent — scoped to their tasks)
+GET {{baseUrl}}/visits/
+Authorization: Bearer {{agentToken}}
+
+### Get Visit Detail
+GET {{baseUrl}}/visits/1/
+Authorization: Bearer {{leadToken}}
+
+### Start Visit (Agent — must be assigned to the task)
+# Replace task_id with an active task assigned to agent_ravi
+POST {{baseUrl}}/visits/start/
+Authorization: Bearer {{agentToken}}
+Content-Type: application/json
+
+{
+    "task_id": 1
+}
+
+### Complete Visit (Low Risk notes)
+# Replace {id} with the visit ID returned from start
+POST {{baseUrl}}/visits/1/complete/
+Authorization: Bearer {{agentToken}}
+Content-Type: application/json
+
+{
+    "visit_notes": "Customer was cooperative. All documentation signed and filed."
+}
+
+### Complete Visit (High Risk notes)
+# AI will flag this as high risk due to keywords: angry, refused
+POST {{baseUrl}}/visits/2/complete/
+Authorization: Bearer {{agentToken}}
+Content-Type: application/json
+
+{
+    "visit_notes": "Customer was extremely angry and refused to sign the documents."
+}
+
+# =====================================================
+# MODULE: Activity Logs
+# =====================================================
+
+### List All Logs (Auditor — sees all)
+GET {{baseUrl}}/logs/
+Authorization: Bearer {{auditorToken}}
+
+### Filter Logs by Action
+GET {{baseUrl}}/logs/?action=completed
+Authorization: Bearer {{auditorToken}}
+
+### Filter Logs by Entity Type
+GET {{baseUrl}}/logs/?entity_type=visit
+Authorization: Bearer {{auditorToken}}
+
+### Filter Logs by Entity Type + Action
+GET {{baseUrl}}/logs/?entity_type=task&action=created
+Authorization: Bearer {{adminToken}}
+
+### Filter Logs by User ID
+GET {{baseUrl}}/logs/?user__id=5
+Authorization: Bearer {{adminToken}}
+
+### Get Single Log Entry
+GET {{baseUrl}}/logs/1/
+Authorization: Bearer {{auditorToken}}
+
+### Fetch Logs as Agent (should return 403 Forbidden)
+GET {{baseUrl}}/logs/
+Authorization: Bearer {{agentToken}}
+
+# =====================================================
+# MODULE: Reports & Dashboard
+# =====================================================
+
+### Dashboard (Admin — global view of everything)
+GET {{baseUrl}}/reports/dashboard/
+Authorization: Bearer {{adminToken}}
+
+### Dashboard (Team Lead — scoped to their team)
+GET {{baseUrl}}/reports/dashboard/
+Authorization: Bearer {{leadToken}}
+
+### Dashboard (Agent — scoped to themselves)
+GET {{baseUrl}}/reports/dashboard/
+Authorization: Bearer {{agentToken}}
+
+### Report: Pending Tasks (grouped by region + team)
+GET {{baseUrl}}/reports/pending-tasks/
+Authorization: Bearer {{adminToken}}
+
+### Report: Task Distribution (status counts by region)
+GET {{baseUrl}}/reports/task-distribution/
+Authorization: Bearer {{auditorToken}}
+
+### Report: Recent Visits (last 7 days, daily breakdown)
+GET {{baseUrl}}/reports/recent-visits/
+Authorization: Bearer {{leadToken}}
+
+### Report: Avg Completion Time per Agent (in minutes)
+GET {{baseUrl}}/reports/completion-time/
+Authorization: Bearer {{adminToken}}
