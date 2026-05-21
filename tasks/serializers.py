@@ -57,6 +57,13 @@ class TaskCreateUpdateSerializer(serializers.ModelSerializer):
         model = Task
         fields = ('title', 'description', 'status', 'priority', 'due_date', 'assigned_to')
 
+    def validate_due_date(self, value):
+        from django.utils import timezone
+        today = timezone.localdate()  # Uses Asia/Kolkata
+        if value < today:
+            raise serializers.ValidationError("Due date cannot be in the past.")
+        return value
+
     def validate(self, attrs):
         user = self.context['request'].user
         assigned_to = attrs.get('assigned_to')
