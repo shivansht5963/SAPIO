@@ -285,7 +285,7 @@ Start a new visit for a task assigned to the current user.
 ---
 
 ### POST /api/visits/{id}/complete/
-Complete an ongoing visit and trigger Mock AI analysis on the notes.
+Complete an ongoing visit and trigger AI analysis on the notes.
 
 **Auth required:** Yes — `visits.update`
 

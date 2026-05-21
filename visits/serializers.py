@@ -3,7 +3,7 @@ from django.utils import timezone
 from .models import Visit
 from tasks.models import Task
 from accounts.models import EmployeeProfile
-from services.ai_service import MockAIService
+from services.ai_service import AIService
 
 class MinimalEmployeeProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
@@ -99,8 +99,8 @@ class VisitCompleteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         notes = validated_data.get('visit_notes')
         
-        # Call the Mock AI Service
-        ai_insights = MockAIService.generate_insights(notes)
+        # Call the AI Service
+        ai_insights = AIService.generate_insights(notes)
 
         instance.visit_notes = notes
         instance.status = 'completed'

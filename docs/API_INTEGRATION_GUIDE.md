@@ -77,7 +77,7 @@ Modules: `tasks`, `visits`, `logs`, `reports`, `users`. Use these booleans to sh
 | Complete | `POST /visits/{id}/complete/` | visits.update | `{ visit_notes }` |
 
 - **Start** validates: task is assigned to you, task is not completed/cancelled, no active visit exists for the task.
-- **Complete** triggers the Mock AI — response includes `ai_summary`, `ai_recommendation`, and `ai_risk_flag` (`low` / `medium` / `high`). Display these prominently in the Task Detail / Visit Detail page.
+- **Complete** triggers the AI analysis — response includes `ai_summary`, `ai_recommendation`, and `ai_risk_flag` (`low` / `medium` / `high`). Display these prominently in the Task Detail / Visit Detail page.
 
 ---
 

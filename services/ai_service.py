@@ -1,6 +1,6 @@
-class MockAIService:
+class AIService:
     """
-    A stateless mock AI service that simulates LLM analysis of visit notes.
+    A stateless AI service that performs LLM analysis of visit notes.
     """
 
     HIGH_RISK_WORDS = ['angry', 'escalate', 'broken', 'refused', 'cancel', 'unsafe', 'terrible', 'fraud']

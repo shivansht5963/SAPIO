@@ -44,7 +44,7 @@ class Visit(models.Model):
     # ── Agent's raw notes ──
     visit_notes = models.TextField(blank=True)
 
-    # ── Mock AI generated fields ──
+    # ── AI generated fields ──
     ai_summary = models.TextField(blank=True)
     ai_recommendation = models.TextField(blank=True)
     ai_risk_flag = models.CharField(
